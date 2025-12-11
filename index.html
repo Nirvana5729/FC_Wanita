@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e84b6c 0%, #c94760 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Corazones de fondo */
+        .heart {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            opacity: 0.3;
+            animation: float 15s infinite;
+        }
+
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 32px;
+            background: #ff6b9d;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .heart:before {
+            left: 20px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Control de música */
+        .music-control {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, rgba(60, 20, 30, 0.95), rgba(100, 30, 40, 0.95));
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            width: 350px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .music-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .music-cover {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff6b9d, #c94760);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-info {
+            flex: 1;
+        }
+
+        .music-title {
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .music-artist {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+
+        .music-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .progress-container {
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: white;
+            width: 30%;
+            animation: progress 180s linear infinite;
+            border-radius: 2px;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .time-labels {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+        }
+
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .control-btn.play {
+            background: white;
+            color: #c94760;
+            width: 45px;
+            height: 45px;
+            font-size: 24px;
+        }
+
+        .control-btn.play:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.15);
+        }
+
+        /* Contenedor de la tarjeta */
+        .card-container {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 500px;
+            height: 700px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #ffd4d4 0%, #ffb3c1 100%);
+            border: 8px solid #fff;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #fff5e1 0%, #ffe4b5 100%);
+            border: 8px solid #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-title {
+            font-size: 28px;
+            color: #8b4a5e;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .card-main-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #5a2a3a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .card-subtitle {
+            font-size: 24px;
+            color: #a06c7b;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .back-message {
+            font-size: 20px;
+            color: #8b6914;
+            text-align: center;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+
+        .back-message::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .back-message::-webkit-scrollbar-thumb {
+            background: #d4a574;
+            border-radius: 3px;
+        }
+
+        .button {
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Confeti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Globos */
+        .balloon {
+            position: absolute;
+            width: 60px;
+            height: 75px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: balloon-float 6s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .balloon:before {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 2px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes balloon-float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-30px) translateX(20px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Control de música -->
+    <div class="music-control">
+        <div class="music-header">
+            <div class="music-cover" id="musicCover">🎂</div>
+            <div class="music-info">
+                <div class="music-title" id="songTitle">Happy Birthday</div>
+                <div class="music-artist" id="songArtist">Feliz Cumpleaños</div>
+            </div>
+            <div class="music-badge">▲</div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" onclick="seekMusic(event)">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="time-labels">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">3:00</span>
+            </div>
+        </div>
+        <div class="music-controls">
+            <button class="control-btn" onclick="shuffleMusic()">🔀</button>
+            <button class="control-btn" onclick="previousSong()">⏮</button>
+            <button class="control-btn play" id="playBtn" onclick="togglePlay()">▶</button>
+            <button class="control-btn" onclick="nextSong()">⏭</button>
+            <button class="control-btn" onclick="toggleRepeat()">🔁</button>
+        </div>
+    </div>
+
+    <!-- Tarjeta -->
+    <div class="card-container" onclick="flipCard()">
+        <div class="card" id="card">
+            <div class="card-face card-front"> <!-- Cara frontal -->
+                <h2 class="card-title">¡FELIZ</h2>
+                <h1 class="card-main-text">ANIVERSÁRIO!</h1>
+                <p class="card-subtitle">Olá, amor, sou eu, Tottus kakakaka. Bom, como 
+                não sei se consegui fazer o presente que eram umas flores, fiz este cartão virtual
+                . Este dia celebra o seu aniversário, um dia assim em 2004 onde nasce um bebê
+                muito lindo, chorão, pode ser kakakkaa,<br>Este é um dia de felicidade para você
+                este dia celebramos a pessoa que roubou meu coração e a dona dos meus elogios
+                <br><br>**PRESS**</p>
+            </div>
+            <div class="card-face card-back"> <!-- Cara trasera -->
+                <p class="back-message">
+                          Neste dia eu te desejo o melhor do melhor, que todos os seus sonhos se realizem e que você continue sendo a garota por quem me apaixonei.
+                          Você é uma pessoa muito especial e me sinto afortunado por compartilhar este momento com você.
+                          Como eu disse antes, você é uma pessoa que me parece ter feito grandes coisas e eu realmente admiro isso.
+                          Espero que um dia possamos estar lado a lado celebrando muitos outros aniversários juntos.
+                          Você, Wânnia, não é uma pessoa que precisa invejar nada, porque você tem muitas qualidades que fazem de você a grande pessoa que é.
+                          Muitas pessoas gostariam de ter o seu jeito de amar, o seu jeito de ser e a sua maneira de ver os outros.
+                          As pessoas que te conhecem e sabem sobre você, sabem o seu valor, a pessoa linda que você é e
+                          o quanto nos sentimos afortunados por termos coincidido neste grande mundo com você.
+                          O que mais posso dizer que ainda não te disse, tanto para realçar sua beleza quanto sua inteligência, o seu jeito de ser, seu humor, a forma como você me trata,
+                          Você sabe que, aos meus olhos, você é uma garota incrível que certamente terá muitas felicidades na vida (eu quero ser uma delas) espero que você goste de tudo que eu possa te oferecer e também desejo te acompanhar em muitos outros aniversários, te dando beijos e abraços.
+                          Poderiam continuar saindo palavras dos meus dedos para te descrever e te dizer mais coisas, mas acho que eu disse as mais importantes.
+                          Algum dia espero poder te dar algo melhor, mas por agora, aceite este cartão virtual feito com muito carinho.
+
+                          Feliz aniversário, meu amor! Eu te amo com todo o meu coração.
+
+                          Com todo meu amor,
+                          Ruben ❤️❤️❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN DE MÚSICA ===
+        // INSTRUCCIONES: Coloca tus archivos de música en la misma carpeta que este HTML
+        // y actualiza esta lista con los nombres de tus archivos
+        const playlist = [
+            {
+                title: "Las Mañanitas",
+                artist: "Tradicional",
+                cover: "🎉",
+                file: "LasMañanitas.mp3"  // Cambia esto por tu archivo
+            },
+            {
+                title: "Cumpleaños Feliz",
+                artist: "Celebración",
+                cover: "🎈",
+                file: "Cumpleaños.mp3"  // Cambia esto por tu archivo
+            }
+        ];
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let audio = new Audio();
+        let currentTime = 0;
+        let duration = 180; // 3 minutos por defecto
+
+        // Cargar canción
+        function loadSong(index) {
+            const song = playlist[index];
+            document.getElementById('songTitle').textContent = song.title;
+            document.getElementById('songArtist').textContent = song.artist;
+            document.getElementById('musicCover').textContent = song.cover;
+            
+            // Cargar audio
+            audio.src = song.file;
+            audio.load();
+            
+            audio.addEventListener('loadedmetadata', () => {
+                duration = audio.duration;
+                updateTotalTime();
+            });
+            
+            audio.addEventListener('timeupdate', () => {
+                currentTime = audio.currentTime;
+                updateProgress();
+            });
+            
+            audio.addEventListener('ended', () => {
+                nextSong();
+            });
+        }
+
+        // Reproducir/Pausar
+        function togglePlay() {
+            const playBtn = document.getElementById('playBtn');
+            if (isPlaying) {
+                audio.pause();
+                playBtn.textContent = '▶';
+                isPlaying = false;
+            } else {
+                audio.play().catch(e => console.log('Error al reproducir:', e));
+                playBtn.textContent = '⏸';
+                isPlaying = true;
+            }
+        }
+
+        // Canción anterior
+        function previousSong() {
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) {
+                audio.play();
+            }
+        }
+
+        // Siguiente canción
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) {
+                audio.play();
+            }
+        }
+
+        // Aleatorio
+        function shuffleMusic() {
+            const randomIndex = Math.floor(Math.random() * playlist.length);
+            currentSongIndex = randomIndex;
+            loadSong(currentSongIndex);
+            if (isPlaying) {
+                audio.play();
+            }
+        }
+
+        // Repetir
+        function toggleRepeat() {
+            audio.loop = !audio.loop;
+            alert(audio.loop ? 'Repetición activada' : 'Repetición desactivada');
+        }
+
+        // Buscar en la canción
+        function seekMusic(event) {
+            const progressBar = event.currentTarget;
+            const clickX = event.offsetX;
+            const width = progressBar.offsetWidth;
+            const percentage = clickX / width;
+            audio.currentTime = duration * percentage;
+        }
+
+        // Actualizar progreso
+        function updateProgress() {
+            const percentage = (currentTime / duration) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = Math.floor(currentTime % 60);
+            document.getElementById('currentTime').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Actualizar tiempo total
+        function updateTotalTime() {
+            const minutes = Math.floor(duration / 60);
+            const seconds = Math.floor(duration % 60);
+            document.getElementById('totalTime').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Cargar primera canción al inicio
+        loadSong(0);
+
+        // === FIN CONFIGURACIÓN DE MÚSICA ===
+
+        // Función para voltear la tarjeta
+        function flipCard() {
+            const card = document.getElementById('card');
+            card.classList.toggle('flipped');
+        }
+
+        // Crear corazones flotantes
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 20000);
+        }
+
+        // Crear confeti
+        function createConfetti() {
+            const colors = ['#ffd700', '#ff6b9d', '#4ecdc4', '#ff6b6b', '#95e1d3'];
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }
+
+        // Crear globos alrededor de la tarjeta
+        function createBalloon() {
+            const colors = ['#ff6b9d', '#4ecdc4', '#ffd700', '#ff6b6b', '#95e1d3'];
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            
+            // Obtener dimensiones de la ventana
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Zona de la tarjeta (aproximadamente centro)
+            const cardCenterX = windowWidth / 2;
+            const cardCenterY = windowHeight / 2;
+            const cardZoneWidth = 550; // Un poco más grande que la tarjeta
+            const cardZoneHeight = 750;
+            
+            let posX, posY;
+            let side = Math.floor(Math.random() * 4); // 0: izquierda, 1: derecha, 2: arriba, 3: abajo
+            
+            switch(side) {
+                case 0: // Izquierda
+                    posX = Math.random() * (cardCenterX - cardZoneWidth / 2 - 100);
+                    posY = Math.random() * windowHeight;
+                    break;
+                case 1: // Derecha
+                    posX = cardCenterX + cardZoneWidth / 2 + Math.random() * (windowWidth - cardCenterX - cardZoneWidth / 2 - 100);
+                    posY = Math.random() * windowHeight;
+                    break;
+                case 2: // Arriba
+                    posX = Math.random() * windowWidth;
+                    posY = Math.random() * (cardCenterY - cardZoneHeight / 2 - 100);
+                    break;
+                case 3: // Abajo
+                    posX = Math.random() * windowWidth;
+                    posY = cardCenterY + cardZoneHeight / 2 + Math.random() * (windowHeight - cardCenterY - cardZoneHeight / 2 - 100);
+                    break;
+            }
+            
+            balloon.style.left = posX + 'px';
+            balloon.style.top = posY + 'px';
+            balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+            balloon.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            document.body.appendChild(balloon);
+            
+            // Remover el globo después de la animación
+            setTimeout(() => {
+                balloon.remove();
+            }, 7000);
+        }
+
+        // Generar elementos decorativos
+        setInterval(createHeart, 800);
+        setInterval(createConfetti, 300);
+        
+        // Crear globos continuamente
+        setInterval(createBalloon, 2000);
+        
+        // Crear globos iniciales
+        for (let i = 0; i < 6; i++) {
+            setTimeout(createBalloon, i * 300);
+        }
+    </script>
+</body>
+</html>
